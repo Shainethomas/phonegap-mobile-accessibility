@@ -144,8 +144,11 @@ public class MobileAccessibility extends CordovaPlugin {
                     } catch(ClassCastException ce) {  // cordova-android 4.0+
                         try {   // cordova-android 4.0+
                             Method getView = webView.getClass().getMethod("getView");
-                            Method reload = getView.invoke(webView).getClass().getMethod("reload");
-                            reload.invoke(webView);
+                            // reload() belongs to the engine view returned by getView(),
+                            // so invoke it there - not on the CordovaWebViewImpl wrapper
+                            Object engineView = getView.invoke(webView);
+                            Method reload = engineView.getClass().getMethod("reload");
+                            reload.invoke(engineView);
                         } catch (NoSuchMethodException e) {
                             e.printStackTrace();
                         } catch (InvocationTargetException e) {
